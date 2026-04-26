@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 340px;
+      margin: 0;
+      padding: 16px;
+      background: #1e1e2f;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      border-radius: 12px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .header img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+    .header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #ff6699;
+    }
+    .info-card {
+      background: #2a2a3c;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .title {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      word-break: break-word;
+      color: #ffffff;
+    }
+    button {
+      width: 100%;
+      background: #ff6699;
+      border: none;
+      color: white;
+      padding: 12px 0;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 4px 8px rgba(255,102,153,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    button:hover {
+      background: #ff4d88;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    button.secondary {
+      background: #3f3f5a;
+      box-shadow: none;
+    }
+    button.secondary:hover {
+      background: #52527a;
+    }
+    .status {
+      color: #aaa;
+      font-size: 0.85rem;
+      text-align: center;
+      margin-top: 12px;
+      word-break: break-word;
+    }
+    hr {
+      border: 0.5px solid #3a3a4c;
+      margin: 16px 0 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="images/icon.jpg" alt="icon">
+    <h2>B站视频下载器</h2>
+  </div>
+  <div class="info-card">
+    <div class="title" id="videoTitle">正在获取视频信息...</div>
+    <button id="downloadBtn" style="display: none;">⬇️ 下载视频</button>
+    <div class="status" id="statusMsg"></div>
+  </div>
+  <hr>
+  <button class="secondary" id="refreshBtn" style="width: 100%;">🔄 刷新信息</button>
+  <script src="popup.js"></script>
+</body>
+</html>
