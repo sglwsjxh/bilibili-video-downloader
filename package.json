@@ -1,0 +1,28 @@
+{
+  "name": "main",
+  "version": "1.0.0",
+  "description": "> 一键提取 · 双轨下载 · FFmpeg 自动合成",
+  "main": "content.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sglwsjxh/bilibili-video-downloader.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sglwsjxh/bilibili-video-downloader/issues"
+  },
+  "homepage": "https://github.com/sglwsjxh/bilibili-video-downloader#readme",
+  "devDependencies": {
+    "vitest": "^4.1.7"
+  }
+}

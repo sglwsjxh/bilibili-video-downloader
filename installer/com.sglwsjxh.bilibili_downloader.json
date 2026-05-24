@@ -1,0 +1,9 @@
+﻿{
+    "name":  "com.sglwsjxh.bilibili_downloader",
+    "description":  "Bilibili Video Downloader Native Host",
+    "path":  "C:\\Users\\mark3\\Desktop\\code\\projects\\web-extend\\bilibili-video-download\\main\\installer\\nativehost.exe",
+    "type":  "stdio",
+    "allowed_origins":  [
+                            "chrome-extension://lfgflbppgjlioamfdnlhdoopcmoikgfm/"
+                        ]
+}

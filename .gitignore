@@ -1,3 +1,18 @@
 # ide
 .vscode/
-AGENTS.md
+
+# npm
+node_modules/
+package-lock.json
+
+# build
+*.exe
+
+# temp
+tmp/
+temp/
+*.tmp
+
+#log 
+logs/
+*.log

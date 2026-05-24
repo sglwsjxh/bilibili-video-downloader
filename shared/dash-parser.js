@@ -1,4 +1,4 @@
-function findDashSourcesFromScript(content) {
+export function findDashSourcesFromScript(content) {
   const parsedObjects = findJsonObjectsContainingDash(content)
   const sources = []
   for (let parsedObject of parsedObjects) collectDashSources(parsedObject, sources)
@@ -41,7 +41,7 @@ function collectDashSources(value, sources) {
   for (let key in value) collectDashSources(value[key], sources)
 }
 
-function extractFallbackTracks(content, type) {
+export function extractFallbackTracks(content, type) {
   const tracks = []
   const keyPattern = new RegExp(`"${type}"\\s*:\\s*\\[`, 'gi')
   let match
@@ -69,26 +69,10 @@ function extractFallbackTracks(content, type) {
   return tracks
 }
 
-function normalizeUrl(value) {
-  if (!value || typeof value !== 'string') return ''
-  return value.replace(/\\\//g, '/')
-}
-
-function toNumber(value) {
-  const number = Number(value)
-  return Number.isFinite(number) ? number : 0
-}
-
-function normalizeBackupUrls(value) {
-  if (Array.isArray(value)) return value.map(normalizeUrl).filter(Boolean)
-  if (typeof value === 'string') return [normalizeUrl(value)].filter(Boolean)
-  return []
-}
-
-function standardizeTrack(track, type) {
+export function standardizeTrack(track, type) {
   const url = normalizeUrl(track.base_url || track.baseUrl || '')
   const backupValue = track.backup_url || track.backupUrl || track.backup_urls || track.backupUrls || []
-  const backupUrls = Array.isArray(backupValue) ? backupValue.map(normalizeUrl).filter(Boolean) : typeof backupValue === 'string' ? [normalizeUrl(backupValue)].filter(Boolean) : []
+  const backupUrls = normalizeBackupUrls(backupValue)
   const id = toNumber(track.id || track.quality || 0)
   const bandwidth = toNumber(track.bandwidth || 0)
   const width = toNumber(track.width || 0)
@@ -113,7 +97,23 @@ function buildQualityLabel(track, type) {
   return '音频'
 }
 
-function uniqueTracks(tracks) {
+function normalizeBackupUrls(value) {
+  if (Array.isArray(value)) return value.map(normalizeUrl).filter(Boolean)
+  if (typeof value === 'string') return [normalizeUrl(value)].filter(Boolean)
+  return []
+}
+
+function normalizeUrl(value) {
+  if (!value || typeof value !== 'string') return ''
+  return value.replace(/\\\//g, '/')
+}
+
+function toNumber(value) {
+  const number = Number(value)
+  return Number.isFinite(number) ? number : 0
+}
+
+export function uniqueTracks(tracks) {
   const seen = new Set()
   const result = []
   for (let track of tracks) {
@@ -124,11 +124,11 @@ function uniqueTracks(tracks) {
   return result
 }
 
-function compareVideoTracks(left, right) {
+export function compareVideoTracks(left, right) {
   return right.height - left.height || right.width - left.width || right.bandwidth - left.bandwidth || right.id - left.id
 }
 
-function compareAudioTracks(left, right) {
+export function compareAudioTracks(left, right) {
   return right.bandwidth - left.bandwidth || right.id - left.id
 }
 
@@ -152,7 +152,7 @@ function readStringField(text, fieldPattern) {
 function readStringArrayField(text, fieldPattern) {
   const arrayMatch = text.match(new RegExp(`"${fieldPattern}"\\s*:\\s*\\[([\\s\\S]*?)\\]`, 'i'))
   if (arrayMatch?.[1]) {
-    return Array.from(arrayMatch[1].matchAll(/"([^"]+)"/g), m => m[1])
+    return Array.from(arrayMatch[1].matchAll(/"([^"]+)"/g), match => match[1])
   }
   const stringValue = readStringField(text, fieldPattern)
   return stringValue ? [stringValue] : []
@@ -160,77 +160,20 @@ function readStringArrayField(text, fieldPattern) {
 
 function findMatchingToken(text, start, openToken, closeToken) {
   if (start === -1 || text[start] !== openToken) return -1
-  let depth = 0, inString = false, escaped = false
-  for (let i = start; i < text.length; i++) {
-    const c = text[i]
+  let depth = 0
+  let inString = false
+  let escaped = false
+  for (let index = start; index < text.length; index++) {
+    const char = text[index]
     if (inString) {
       if (escaped) escaped = false
-      else if (c === '\\') escaped = true
-      else if (c === '"') inString = false
+      else if (char === '\\') escaped = true
+      else if (char === '"') inString = false
       continue
     }
-    if (c === '"') inString = true
-    else if (c === openToken) depth++
-    else if (c === closeToken) { depth--; if (depth === 0) return i }
+    if (char === '"') inString = true
+    else if (char === openToken) depth++
+    else if (char === closeToken) { depth--; if (depth === 0) return index }
   }
   return -1
-}
-
-function findVideoAudioUrls(callback) {
-  const scriptTags = document.querySelectorAll('script')
-  const videoTracks = []
-  const audioTracks = []
-
-  for (let script of scriptTags) {
-    const content = script.textContent || script.innerText || ''
-    if (!content.includes('dash') || (!content.includes('video') && !content.includes('audio'))) continue
-
-    const dashSources = findDashSourcesFromScript(content)
-    for (let source of dashSources) {
-      videoTracks.push(...source.video.map(track => standardizeTrack(track, 'video')))
-      audioTracks.push(...source.audio.map(track => standardizeTrack(track, 'audio')))
-    }
-
-    if (!dashSources.length) {
-      videoTracks.push(...extractFallbackTracks(content, 'video'))
-      audioTracks.push(...extractFallbackTracks(content, 'audio'))
-    }
-  }
-
-  const availableVideoTracks = uniqueTracks(videoTracks).sort(compareVideoTracks)
-  const availableAudioTracks = uniqueTracks(audioTracks).sort(compareAudioTracks)
-  const selectedVideo = availableVideoTracks[0] || null
-  const selectedAudio = availableAudioTracks[0] || null
-
-  const storeData = (selectedVideo || selectedAudio) ? {
-    selectedVideo,
-    selectedAudio,
-    availableVideoTracks,
-    availableAudioTracks,
-    qualityLabel: selectedVideo?.qualityLabel || '',
-    title: document.title.replace(/\s*[-_ ]?哔哩哔哩_bilibili\s*$/i, '').trim()
-  } : null
-
-  if (storeData) {
-    chrome.storage.local.set({ [location.href]: storeData }, () => {
-      if (callback) callback(storeData)
-    })
-  } else {
-    if (callback) callback(null)
-  }
-}
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'parse') {
-    findVideoAudioUrls(data => {
-      sendResponse({ success: true, data })
-    })
-    return true
-  }
-})
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', findVideoAudioUrls)
-} else {
-  setTimeout(findVideoAudioUrls, 800)
 }

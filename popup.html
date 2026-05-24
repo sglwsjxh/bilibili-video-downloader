@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <style>
     body {
-      width: 340px;
+      width: 360px;
       margin: 0;
       padding: 16px;
       background: #1a1a2e;
@@ -28,27 +28,65 @@
       font-size: 1.3rem;
       font-weight: 500;
       color: #FB7299;
+      flex: 1;
+    }
+    .host-status {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #2a2a3e;
     }
     .info-card {
       background: #2a2a3e;
       border-radius: 12px;
       padding: 16px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     .title {
       font-size: 1rem;
       font-weight: 500;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       word-break: break-word;
       color: #ffffff;
     }
-    /* 进度条区域 */
+    .dir-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .dir-row input {
+      flex: 1;
+      background: #1a1a2e;
+      border: 1px solid #3a3a4c;
+      color: #e0e0e0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .dir-row input:focus {
+      border-color: #FB7299;
+    }
+    .dir-row button {
+      background: #3f3f5a;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .dir-row button:hover {
+      background: #52527a;
+    }
     .progress-section {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 10px;
+      margin-bottom: 12px;
     }
     .track-card {
       background: #1a1a2e;
@@ -75,7 +113,7 @@
       border-radius: 12px;
       font-size: 0.75rem;
       cursor: pointer;
-      transition: background 0.2s;
+      display: none;
     }
     .retry-btn:hover {
       background: #52527a;
@@ -86,7 +124,6 @@
       background: #3a3a4c;
       border-radius: 3px;
       overflow: hidden;
-      position: relative;
     }
     .progress-bar-fill {
       height: 100%;
@@ -100,24 +137,21 @@
     .audio-fill {
       background: #00A1D6;
     }
-    /* 动画类 */
     .progress-indeterminate {
-      background-image: linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.15) 25%,
-        transparent 25%,
-        transparent 50%,
-        rgba(255, 255, 255, 0.15) 50%,
-        rgba(255, 255, 255, 0.15) 75%,
-        transparent 75%,
-        transparent
-      );
+      background-image: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent);
       background-size: 1rem 1rem;
       animation: progress-stripes 1s linear infinite;
     }
     @keyframes progress-stripes {
       from { background-position: 1rem 0; }
       to { background-position: 0 0; }
+    }
+    .status-msg {
+      font-size: 0.8rem;
+      color: #aaa;
+      text-align: center;
+      margin-bottom: 12px;
+      display: none;
     }
     button#downloadBtn {
       width: 100%;
@@ -129,7 +163,7 @@
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      transition: background 0.2s, box-shadow 0.2s;
       box-shadow: 0 4px 8px rgba(251, 114, 153, 0.3);
       display: flex;
       align-items: center;
@@ -138,37 +172,33 @@
     }
     button#downloadBtn:hover {
       background: #ff85a0;
-      box-shadow: 0 6px 12px rgba(251, 114, 153, 0.4);
     }
     button#downloadBtn:active {
       transform: scale(0.98);
+    }
+    button#downloadBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
     button.secondary {
       width: 100%;
       background: #3f3f5a;
       border: none;
       color: white;
-      padding: 12px 0;
+      padding: 10px 0;
       border-radius: 30px;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
     button.secondary:hover {
       background: #52527a;
     }
-    button.secondary:active {
-      transform: scale(0.98);
-    }
     hr {
       border: none;
       border-top: 1px solid #3a3a4c;
-      margin: 16px 0 16px;
+      margin: 12px 0;
     }
   </style>
 </head>
@@ -176,25 +206,31 @@
   <div class="header">
     <img src="images/icon.svg" alt="icon">
     <h2>B站视频下载器</h2>
+    <span class="host-status" id="hostStatus">○ 检测中</span>
   </div>
+
   <div class="info-card">
     <div class="title" id="videoTitle">正在获取视频信息...</div>
-    
+
+    <div class="dir-row">
+      <input type="text" id="dirInput" placeholder="下载目录路径">
+      <button id="browseDirBtn">浏览</button>
+    </div>
+
     <div class="progress-section">
       <div class="track-card">
         <div class="track-header">
           <span class="track-label" id="videoProgressLabel">视频: 等待中</span>
-          <button id="retryVideoBtn" class="retry-btn" style="display: none;">重试</button>
+          <button id="retryVideoBtn" class="retry-btn">重试</button>
         </div>
         <div class="progress-container">
           <div class="progress-bar-fill video-fill" id="videoProgressBar"></div>
         </div>
       </div>
-      
       <div class="track-card">
         <div class="track-header">
           <span class="track-label" id="audioProgressLabel">音频: 等待中</span>
-          <button id="retryAudioBtn" class="retry-btn" style="display: none;">重试</button>
+          <button id="retryAudioBtn" class="retry-btn">重试</button>
         </div>
         <div class="progress-container">
           <div class="progress-bar-fill audio-fill" id="audioProgressBar"></div>
@@ -202,10 +238,14 @@
       </div>
     </div>
 
+    <div class="status-msg" id="statusMsg"></div>
+
     <button id="downloadBtn" style="display: none;">⬇️ 下载视频</button>
   </div>
+
   <hr>
   <button class="secondary" id="refreshBtn">🔄 刷新信息</button>
+
   <script src="popup.js"></script>
 </body>
 </html>

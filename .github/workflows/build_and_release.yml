@@ -1,0 +1,52 @@
+name: build_and_release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache-dependency-path: backend/go.sum
+
+      - name: Build nativehost.exe
+        run: |
+          cd backend
+          go build -ldflags="-s -w" -o ../installer/nativehost.exe ./cmd/nativehost/
+
+      - name: Prepare release archive
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          $dirName = "bili-video-download-$version"
+          New-Item -ItemType Directory -Path $dirName -Force
+
+          $files = @(
+            'README.md', 'manifest.json', 'content.js', 'background.js',
+            'popup.js', 'popup.html'
+          )
+          foreach ($f in $files) {
+            Copy-Item $f -Destination $dirName
+          }
+
+          Copy-Item shared -Recurse -Destination $dirName
+          Copy-Item images -Recurse -Destination $dirName
+          Copy-Item installer -Recurse -Destination $dirName
+
+          Compress-Archive -Path $dirName -DestinationPath "$dirName.zip"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: bili-video-download-*.zip
+          generate_release_notes: true

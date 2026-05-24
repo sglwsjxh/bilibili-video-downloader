@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "B站视频下载",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "提取和下载B站视频与音频流",
   "author": "清木殇",
   "action": {
@@ -21,15 +21,21 @@
     "64": "images/icon-64.png",
     "128": "images/icon-128.png"
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://www.bilibili.com/*"],
       "js": ["content.js"]
     }
   ],
-  "permissions": ["storage", "downloads", "activeTab"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "nativeMessaging"
+  ],
   "host_permissions": [
-    "https://www.bilibili.com/*",
-    "https://*.bilivideo.com/*"
+    "https://www.bilibili.com/*"
   ]
 }
