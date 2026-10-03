@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"unicode/utf8"
 )
 
 type Merger struct {
@@ -49,8 +50,8 @@ func (m *Merger) Merge(videoPath, audioPath, title string) (string, error) {
 }
 
 func sanitizeFilename(name string) string {
-	result := make([]byte, 0, len(name))
-	for _, c := range []byte(name) {
+	result := make([]rune, 0, utf8.RuneCountInString(name))
+	for _, c := range name {
 		switch c {
 		case '\\', '/', ':', '*', '?', '"', '<', '>', '|', '\'':
 			result = append(result, '_')
