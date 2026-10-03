@@ -1,7 +1,9 @@
 {
-  "name": "main",
-  "version": "1.0.0",
-  "description": "> 一键提取 · 双轨下载 · FFmpeg 自动合成",
+  "name": "B 站视频下载器",
+  "version": "1.2.0",
+  "description": "提取和下载 B 站音视频流",
+  "author": "清木殇",
+  "license": "MIT",
   "main": "content.js",
   "directories": {
     "test": "tests"
@@ -14,9 +16,6 @@
     "type": "git",
     "url": "git+https://github.com/sglwsjxh/bilibili-video-downloader.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/sglwsjxh/bilibili-video-downloader/issues"

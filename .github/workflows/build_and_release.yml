@@ -20,9 +20,12 @@ jobs:
           cache-dependency-path: backend/go.sum
 
       - name: Build nativehost.exe
+        shell: pwsh
         run: |
-          cd backend
-          go build -ldflags="-s -w" -o ../installer/nativehost.exe ./cmd/nativehost/
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          Push-Location backend
+          go build -ldflags "-s -w -X main.version=$version" -o ../installer/nativehost.exe ./cmd/nativehost/
+          Pop-Location
 
       - name: Prepare release archive
         shell: pwsh
@@ -42,6 +45,8 @@ jobs:
           Copy-Item shared -Recurse -Destination $dirName
           Copy-Item images -Recurse -Destination $dirName
           Copy-Item installer -Recurse -Destination $dirName
+
+          Remove-Item (Join-Path $dirName 'installer\config.json') -ErrorAction SilentlyContinue
 
           Compress-Archive -Path $dirName -DestinationPath "$dirName.zip"
 
