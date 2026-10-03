@@ -88,7 +88,7 @@ function normalizeBackupUrls(value) {
 function standardizeTrack(track, type) {
   const url = normalizeUrl(track.base_url || track.baseUrl || '')
   const backupValue = track.backup_url || track.backupUrl || track.backup_urls || track.backupUrls || []
-  const backupUrls = Array.isArray(backupValue) ? backupValue.map(normalizeUrl).filter(Boolean) : typeof backupValue === 'string' ? [normalizeUrl(backupValue)].filter(Boolean) : []
+  const backupUrls = normalizeBackupUrls(backupValue)
   const id = toNumber(track.id || track.quality || 0)
   const bandwidth = toNumber(track.bandwidth || 0)
   const width = toNumber(track.width || 0)
