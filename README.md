@@ -41,33 +41,48 @@ winget install FFmpeg
 
 ## 安装
 
-### 1. 编译 Go 后端
+### 1. 注册 Native Messaging Host（会自动编译后端）
 
-```bash
-cd backend
-go build -o ../installer/nativehost.exe ./cmd/nativehost/
-```
-
-### 2. 注册 Native Messaging Host
-
-在 Chrome 中加载扩展后，从 `chrome://extensions` 复制扩展 ID，然后：
+在 Chrome 中加载扩展后，从 `chrome://extensions` 复制扩展 ID，然后**在项目根目录**执行一条命令：
 
 ```powershell
 .\installer\install.ps1 --ExtensionId "你的扩展ID"
 ```
 
-如需卸载：
+脚本会自动完成三件事，无需手动 `cd backend` 编译：
+
+1. 用 `go build` 编译 Go 后端到 `installer/nativehost.exe`（版本号取自 `package.json`）
+2. 生成 `installer/config.json`（Chrome Native Messaging 主机清单，含本机 exe 绝对路径）
+3. 向 **Chrome 和 Edge** 的 `HKCU` 注册表写入 Native Messaging Host 指向该清单
+
+> `installer/config.json` 是**本机生成的配置文件**，已加入 `.gitignore`，不会进版本库。仓库里也不保留任何带机器路径的模板。
+
+如需卸载（同时清理注册表与生成的 `config.json`）：
 
 ```powershell
 .\installer\install.ps1 --Uninstall
 ```
 
-### 3. 加载扩展
+<details>
+<summary>可选：使用自带二进制 / 跳过编译</summary>
+
+如果你已经编译好了后端（或想用别处编译的 exe）：
+
+```powershell
+.\installer\install.ps1 --ExtensionId "你的扩展ID" --HostPath "D:\path\to\nativehost.exe"
+```
+
+指定 `--HostPath` 时脚本**跳过编译**，只生成配置并注册。
+</details>
+
+### 2. 加载扩展
 
 1. 打开 `chrome://extensions`
 2. 开启"开发者模式"
 3. 点击"加载已解压的扩展程序"
 4. 选择项目根目录
+
+> 扩展 ID 每次重新加载都可能变化，变化后重跑一次 `install.ps1 --ExtensionId` 即可。
 
 ## 使用方法
 
@@ -80,12 +95,13 @@ go build -o ../installer/nativehost.exe ./cmd/nativehost/
 ## 项目结构
 
 ```
-main/
+bilibili-video-downloader/
 ├── content.js          注入脚本：解析 DASH 流
 ├── background.js       Service Worker：Native Messaging 桥接
 ├── popup.js            弹窗 UI 逻辑
 ├── popup.html          弹窗界面
-├── manifest.json       MV3 配置
+├── manifest.json       MV3 配置（版本号）
+├── package.json        npm 元数据 + 测试脚本（版本号唯一来源）
 ├── shared/
 │   └── dash-parser.js  纯 DASH 解析模块（含 vitest 测试）
 ├── tests/
@@ -99,20 +115,38 @@ main/
 │       ├── ffmpeg/       FFmpeg 合成
 │       └── job/          任务管理
 └── installer/
-    ├── install.ps1       安装/卸载脚本
-    └── nativehost.exe    编译后的后端程序
+    ├── install.ps1       安装/卸载脚本（自动编译后端 + 生成配置 + 注册）
+    └── config.json       运行时生成的本机配置，不进版本库
 ```
+
+`installer/nativehost.exe` 由 `install.ps1` 编译生成，同样不进版本库。
 
 ## 开发
 
 ```bash
 # 前端测试
+npm install     # 首次需装依赖（vitest）
 npm test
 
-# 后端编译
-cd backend && go build -o ../installer/nativehost.exe ./cmd/nativehost/
+# 后端编译（一般交给 install.ps1 即可，手动编译用这条）
+cd backend && go build -ldflags "-X main.version=1.2.0" -o ../installer/nativehost.exe ./cmd/nativehost/
+cd ..
+
+# 后端测试
+cd backend && go test ./...
+cd ..
 ```
+
+### 版本号
+
+`package.json` 的 `version` 是唯一来源。`install.ps1` 读它来注入 Go 二进制版本（`-X main.version=`），发版时把它改成目标版本即可——`manifest.json` 的 `version` 需与它保持一致（Chrome 要求 1-4 位数字且每段 ≤ 65535）。
+
+## 已知限制
+
+- 仅 Windows（目录选择弹窗依赖 PowerShell + WinForms）
+- 需要登录才能观看的付费/会员内容会下载失败（链路不携带 B 站 cookie）
+- `nativehost.exe` 被占用时（扩展正在运行）无法覆盖编译，关掉 Chrome 再重跑 `install.ps1` 即可
 
 ## 许可证
 
-MIT License
+[MIT License](LICENSE)
