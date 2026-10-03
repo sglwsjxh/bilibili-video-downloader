@@ -7,12 +7,17 @@ package-lock.json
 
 # build
 *.exe
+*.exe~
 
 # temp
 tmp/
 temp/
 *.tmp
+*.bak
 
-#log 
+# config
+config.json
+
+# log 
 logs/
 *.log
