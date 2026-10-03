@@ -4,7 +4,6 @@ $chromeRegPath = "HKCU:\SOFTWARE\Google\Chrome\NativeMessagingHosts\$hostName"
 $edgeRegPath = "HKCU:\SOFTWARE\Microsoft\Edge\NativeMessagingHosts\$hostName"
 
 # --- 解析参数 ---
-$HostPath = ""
 $ExtensionId = ""
 $Uninstall = $false
 
@@ -14,10 +13,6 @@ while ($i -lt $args.Count) {
     '--ExtensionId' {
       $i++
       if ($i -lt $args.Count) { $ExtensionId = $args[$i] }
-    }
-    '--HostPath' {
-      $i++
-      if ($i -lt $args.Count) { $HostPath = $args[$i] }
     }
     '--Uninstall' {
       $Uninstall = $true
@@ -87,57 +82,46 @@ if (-not $version) {
   exit 1
 }
 
-if (-not $HostPath) {
-  # --- 默认路径：自动编译 ---
-  if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
-    Write-Error "❌ 未找到 go 命令，无法编译后端"
-    Write-Error "请安装 Go 1.21+ 并确保其在 PATH 中: https://go.dev/dl/"
-    exit 1
-  }
+# --- 编译 Go 后端 ---
+if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
+  Write-Error "❌ 未找到 go 命令，无法编译后端"
+  Write-Error "请安装 Go 1.21+ 并确保其在 PATH 中: https://go.dev/dl/"
+  exit 1
+}
 
-  $exePath = Join-Path $PSScriptRoot "nativehost.exe"
+$exePath = Join-Path $PSScriptRoot "nativehost.exe"
 
-  # 占用中会编译失败
-  if (Test-Path $exePath) {
-    $holders = @(Get-Process -Name "nativehost" -ErrorAction SilentlyContinue)
-    if ($holders.Count -gt 0) {
-      $pidList = ($holders | ForEach-Object { $_.Id }) -join ", "
-      Write-Output "⚠️  检测到 nativehost 进程仍在运行 (PID: $pidList)，它占用着 $exePath，编译覆盖很可能失败"
-      Write-Output "   请先关闭 Chrome（或断开扩展连接）后重新运行；本脚本不会替你结束该进程"
-    }
-  }
-
-  $srcDir = Join-Path $repoRoot "backend"
-  Push-Location $srcDir
-  try {
-    go build -ldflags "-X main.version=$version" -o $exePath ./cmd/nativehost/
-    if ($LASTEXITCODE -ne 0) {
-      Write-Error "❌ Go 后端编译失败 (go build 退出码 $LASTEXITCODE)，请查看上方编译器输出"
-      exit 1
-    }
-  } finally {
-    Pop-Location
-  }
-
-  $HostPath = $exePath
-  Write-Output "✅ 后端已编译完成 (版本 $version): $HostPath"
-# --HostPath：自带二进制
-} else {
-  if (-not (Test-Path $HostPath)) {
-    Write-Error "❌ 找不到后端程序: $HostPath"
-    Write-Error "不带 --HostPath 时本脚本会自动编译 backend/ 下的 Go 后端"
-    exit 1
+# 占用中会编译失败
+if (Test-Path $exePath) {
+  $holders = @(Get-Process -Name "nativehost" -ErrorAction SilentlyContinue)
+  if ($holders.Count -gt 0) {
+    $pidList = ($holders | ForEach-Object { $_.Id }) -join ", "
+    Write-Output "⚠️  检测到 nativehost 进程仍在运行 (PID: $pidList)，它占用着 $exePath，编译覆盖很可能失败"
+    Write-Output "   请先关闭 Chrome（或断开扩展连接）后重新运行；本脚本不会替你结束该进程"
   }
 }
 
-$HostPath = (Resolve-Path $HostPath).Path
+$srcDir = Join-Path $repoRoot "backend"
+Push-Location $srcDir
+try {
+  go build -ldflags "-X main.version=$version" -o $exePath ./cmd/nativehost/
+  if ($LASTEXITCODE -ne 0) {
+    Write-Error "❌ Go 后端编译失败 (go build 退出码 $LASTEXITCODE)，请查看上方编译器输出"
+    exit 1
+  }
+} finally {
+  Pop-Location
+}
+
+$exePath = (Resolve-Path (Join-Path $PSScriptRoot "nativehost.exe")).Path
+Write-Output "✅ 后端已编译完成 (版本 $version): $exePath"
 
 # --- 生成主机清单 ---
 $configPath = Join-Path $PSScriptRoot "config.json"
 $manifest = [ordered]@{
   name = $hostName
   description = "Bilibili Video Downloader Native Host"
-  path = $HostPath
+  path = $exePath
   type = "stdio"
   allowed_origins = @("chrome-extension://$ExtensionId/")
 }
@@ -162,7 +146,7 @@ foreach ($regPath in @($chromeRegPath, $edgeRegPath)) {
 }
 
 Write-Output "✅ Native Messaging Host 安装成功！"
-Write-Output "   主机程序: $HostPath"
+Write-Output "   主机程序: $exePath"
 Write-Output "   主机清单: $configPath"
 Write-Output "   扩展 ID:  $ExtensionId"
 Write-Output ""

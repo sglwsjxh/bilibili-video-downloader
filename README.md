@@ -1,6 +1,6 @@
 # B站视频下载器 (Bilibili Video Downloader)
 
-> 前后端分离 · Go 原生后端 · Chrome Native Messaging
+> Go Native Host · Chrome Native Messaging
 
 ## 项目简介
 
@@ -37,7 +37,7 @@ Go 后端（本地 exe）
 winget install FFmpeg
 ```
 
-或手动下载并添加到系统 PATH。
+或手动下载并添加到系统 PATH
 
 ## 安装
 
@@ -55,25 +55,13 @@ winget install FFmpeg
 2. 生成 `installer/config.json`（Chrome Native Messaging 主机清单，含本机 exe 绝对路径）
 3. 向 **Chrome 和 Edge** 的 `HKCU` 注册表写入 Native Messaging Host 指向该清单
 
-> `installer/config.json` 是**本机生成的配置文件**，已加入 `.gitignore`，不会进版本库。仓库里也不保留任何带机器路径的模板。
+> `installer/config.json` 是**本机生成的配置文件**，已加入 `.gitignore`，不会进版本库，仓库里也不保留任何带机器路径的模板
 
 如需卸载（同时清理注册表与生成的 `config.json`）：
 
 ```powershell
 .\installer\install.ps1 --Uninstall
 ```
-
-<details>
-<summary>可选：使用自带二进制 / 跳过编译</summary>
-
-如果你已经编译好了后端（或想用别处编译的 exe）：
-
-```powershell
-.\installer\install.ps1 --ExtensionId "你的扩展ID" --HostPath "D:\path\to\nativehost.exe"
-```
-
-指定 `--HostPath` 时脚本**跳过编译**，只生成配置并注册。
-</details>
 
 ### 2. 加载扩展
 
@@ -82,7 +70,7 @@ winget install FFmpeg
 3. 点击"加载已解压的扩展程序"
 4. 选择项目根目录
 
-> 扩展 ID 每次重新加载都可能变化，变化后重跑一次 `install.ps1 --ExtensionId` 即可。
+> 扩展 ID 每次重新加载都可能变化，变化后重跑一次 `install.ps1 --ExtensionId` 即可
 
 ## 使用方法
 
@@ -119,7 +107,7 @@ bilibili-video-downloader/
     └── config.json       运行时生成的本机配置，不进版本库
 ```
 
-`installer/nativehost.exe` 由 `install.ps1` 编译生成，同样不进版本库。
+`installer/nativehost.exe` 由 `install.ps1` 编译生成，同样不进版本库
 
 ## 开发
 
@@ -139,7 +127,7 @@ cd ..
 
 ### 版本号
 
-`package.json` 的 `version` 是唯一来源。`install.ps1` 读它来注入 Go 二进制版本（`-X main.version=`），发版时把它改成目标版本即可——`manifest.json` 的 `version` 需与它保持一致（Chrome 要求 1-4 位数字且每段 ≤ 65535）。
+`package.json` 的 `version` 是唯一来源，`install.ps1` 读它来注入 Go 二进制版本（`-X main.version=`），发版时把它改成目标版本即可；`manifest.json` 的 `version` 需与它保持一致（Chrome 要求 1-4 位数字且每段 ≤ 65535）
 
 ## 已知限制
 
