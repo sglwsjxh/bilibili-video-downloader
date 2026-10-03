@@ -11,7 +11,6 @@ const (
 	MsgTypeSelectDir        = "select.dir"
 	MsgTypeSelectDirResult  = "select.dir.result"
 	MsgTypeCancel           = "cancel"
-	MsgTypeParseResult      = "parse.result"
 )
 
 type Envelope struct {
@@ -34,19 +33,11 @@ type TrackInfo struct {
 	QualityLbl string   `json:"qualityLabel,omitempty"`
 }
 
-type ParseResultPayload struct {
-	Title       string      `json:"title"`
-	VideoTracks []TrackInfo `json:"videoTracks"`
-	AudioTracks []TrackInfo `json:"audioTracks"`
-	SelectedVid *TrackInfo  `json:"selectedVideo,omitempty"`
-	SelectedAud *TrackInfo  `json:"selectedAudio,omitempty"`
-}
-
 type DownloadStartPayload struct {
-	Title        string     `json:"title"`
-	Video        TrackInfo  `json:"video"`
-	Audio        TrackInfo  `json:"audio"`
-	OutputDir    string     `json:"outputDir"`
+	Title     string    `json:"title"`
+	Video     TrackInfo `json:"video"`
+	Audio     TrackInfo `json:"audio"`
+	OutputDir string    `json:"outputDir"`
 }
 
 type DownloadProgressPayload struct {
@@ -58,8 +49,8 @@ type DownloadProgressPayload struct {
 }
 
 type MergeProgressPayload struct {
-	Done  bool   `json:"done"`
-	Msg   string `json:"msg,omitempty"`
+	Done bool   `json:"done"`
+	Msg  string `json:"msg,omitempty"`
 }
 
 type JobDonePayload struct {

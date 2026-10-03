@@ -13,30 +13,16 @@ import (
 
 type Manager struct {
 	mu      sync.Mutex
-	jobs    map[string]*Job
-	stopCh  chan struct{}
 	cancels map[string]context.CancelFunc
-}
-
-type Job struct {
-	ID      string
-	Payload messaging.DownloadStartPayload
-	State   string
 }
 
 func NewManager() *Manager {
 	return &Manager{
-		jobs:    make(map[string]*Job),
-		stopCh:  make(chan struct{}),
 		cancels: make(map[string]context.CancelFunc),
 	}
 }
 
 func (m *Manager) StartJob(id string, payload messaging.DownloadStartPayload) {
-	m.mu.Lock()
-	m.jobs[id] = &Job{ID: id, Payload: payload, State: "starting"}
-	m.mu.Unlock()
-
 	go m.runJob(id, payload)
 }
 
@@ -121,8 +107,4 @@ func (m *Manager) runJob(id string, payload messaging.DownloadStartPayload) {
 		messaging.MsgTypeJobDone, id,
 		messaging.JobDonePayload{OutputPath: outputPath},
 	))
-}
-
-func (m *Manager) Stop() {
-	close(m.stopCh)
 }

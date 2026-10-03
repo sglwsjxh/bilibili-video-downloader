@@ -11,12 +11,15 @@ import (
 	"github.com/sglwsjxh/bilibili-video-download/backend/internal/messaging"
 )
 
+// ldflags 注入
+var version = "dev"
+
 func main() {
 	log.SetPrefix("[bili-host] ")
 	log.SetFlags(log.Ltime | log.Lshortfile)
+	log.Printf("version %s", version)
 
 	manager := job.NewManager()
-	defer manager.Stop()
 
 	for {
 		msg, err := messaging.ReadMessage(os.Stdin)
