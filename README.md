@@ -27,10 +27,13 @@ Go 后端（本地 exe，未变）
 
 ## 前置要求
 
-- [Node.js](https://nodejs.org/) 22+（前端构建）
-- [Go](https://go.dev/dl/)（编译后端）
 - [FFmpeg](https://ffmpeg.org/)（音视频合并）
 - Chrome / Edge 等 Chromium 浏览器
+
+从 Release 安装不需要 Node.js 与 Go，源码构建安装另需：
+
+- [Node.js](https://nodejs.org/) 22+（前端构建）
+- [Go](https://go.dev/dl/)（编译后端）
 
 ### 安装 FFmpeg
 
@@ -41,6 +44,30 @@ winget install FFmpeg
 或手动下载并添加到系统 PATH
 
 ## 安装
+
+### 从 Release 安装（免编译）
+
+适合不想配置 Node.js 与 Go 环境的用户。从 [Releases](https://github.com/sglwsjxh/bilibili-video-downloader/releases) 下载 `bili-video-download-v*.zip` 解压后三步完成：
+
+1. 打开 `chrome://extensions` → 开启"开发者模式" → 点击"加载已解压的扩展程序"
+2. 选择解压目录里的 `chrome-mv3` 文件夹，复制该扩展的 ID
+3. 在解压目录的 `installer` 文件夹中运行：
+
+```powershell
+.\install-release.ps1 --ExtensionId "你的扩展ID"
+```
+
+脚本只做注册相关事项：校验扩展 ID → 生成 `config.json` → 向 Chromium 与 Edge 的 `HKCU` 注册表写入 Native Messaging Host，不执行任何编译，扩展 ID 为必填参数
+
+卸载：
+
+```powershell
+.\install-release.ps1 --Uninstall
+```
+
+> 扩展 ID 每次重新加载都可能变化，变化后用新 ID 重跑一次即可
+
+### 从源码构建安装
 
 首次使用只需在项目根目录运行：
 
@@ -110,13 +137,14 @@ bilibili-video-downloader/
 │   ├── cmd/nativehost/
 │   └── internal/
 ├── installer/
-│   ├── install.ps1         安装 卸载 自动编译后端 生成配置 注册
+│   ├── install.ps1           源码安装 卸载 自动编译后端 生成配置 注册
+│   ├── install-release.ps1   Release 安装 免编译 只生成配置与注册
 │   └── config.json         运行时生成 不进版本库
 ├── .output/                构建产物 gitignored 加载扩展选此目录
 └── .wxt/                   WXT 内部缓存 gitignored
 ```
 
-`installer/nativehost.exe` 由 `install.ps1` 编译生成，同样不进版本库
+`installer/nativehost.exe` 由 `install.ps1` 编译生成或由 Release zip 预编译提供，不进版本库
 
 ## 开发
 
