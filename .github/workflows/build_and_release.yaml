@@ -14,10 +14,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          check-latest: true
+
+      - name: Install frontend deps
+        run: npm install
+
+      - name: Build frontend
+        run: npm run build
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.21'
-          cache-dependency-path: backend/go.sum
 
       - name: Build nativehost.exe
         shell: pwsh
@@ -34,16 +44,12 @@ jobs:
           $dirName = "bili-video-download-$version"
           New-Item -ItemType Directory -Path $dirName -Force
 
-          $files = @(
-            'README.md', 'manifest.json', 'content.js', 'background.js',
-            'popup.js', 'popup.html'
-          )
+          $files = @('README.md')
           foreach ($f in $files) {
             Copy-Item $f -Destination $dirName
           }
 
-          Copy-Item shared -Recurse -Destination $dirName
-          Copy-Item images -Recurse -Destination $dirName
+          Copy-Item .output\chrome-mv3 -Recurse -Destination $dirName
           Copy-Item installer -Recurse -Destination $dirName
 
           Remove-Item (Join-Path $dirName 'installer\config.json') -ErrorAction SilentlyContinue

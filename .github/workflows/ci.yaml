@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: '22'
           check-latest: true
 
       - name: Install frontend deps
@@ -26,6 +26,9 @@ jobs:
 
       - name: Test frontend
         run: npm test
+
+      - name: Build frontend
+        run: npm run build
 
       - uses: actions/setup-go@v5
         with:
