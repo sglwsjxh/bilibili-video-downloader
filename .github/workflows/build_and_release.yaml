@@ -54,6 +54,7 @@ jobs:
           Copy-Item installer -Recurse -Destination $dirName
 
           Remove-Item (Join-Path $dirName 'installer\config.json') -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $dirName 'installer\install.ps1') -ErrorAction SilentlyContinue
 
           Compress-Archive -Path $dirName -DestinationPath "$dirName.zip"
 
