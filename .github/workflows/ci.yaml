@@ -22,7 +22,7 @@ jobs:
           check-latest: true
 
       - name: Install frontend deps
-        run: npm install
+        run: npm ci
 
       - name: Test frontend
         run: npm test
