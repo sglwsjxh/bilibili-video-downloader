@@ -1,0 +1,197 @@
+    body {
+      width: 360px;
+      margin: 0;
+      padding: 16px;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      border-radius: 12px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .header img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+    .header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #FB7299;
+      flex: 1;
+    }
+    .host-status {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #2a2a3e;
+    }
+    .info-card {
+      background: #2a2a3e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .title {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 12px;
+      word-break: break-word;
+      color: #ffffff;
+    }
+    .dir-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .dir-row input {
+      flex: 1;
+      background: #1a1a2e;
+      border: 1px solid #3a3a4c;
+      color: #e0e0e0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .dir-row input:focus {
+      border-color: #FB7299;
+    }
+    .dir-row button {
+      background: #3f3f5a;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .dir-row button:hover {
+      background: #52527a;
+    }
+    .progress-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .track-card {
+      background: #1a1a2e;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .track-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .track-label {
+      font-size: 0.85rem;
+      color: #e0e0e0;
+    }
+    .retry-btn {
+      background: #3f3f5a;
+      color: #fff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: none;
+    }
+    .retry-btn:hover {
+      background: #52527a;
+    }
+    .progress-container {
+      width: 100%;
+      height: 6px;
+      background: #3a3a4c;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 3px;
+      transition: width 0.3s ease-out;
+    }
+    .video-fill {
+      background: #FB7299;
+    }
+    .audio-fill {
+      background: #00A1D6;
+    }
+    .progress-indeterminate {
+      background-image: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent);
+      background-size: 1rem 1rem;
+      animation: progress-stripes 1s linear infinite;
+    }
+    @keyframes progress-stripes {
+      from { background-position: 1rem 0; }
+      to { background-position: 0 0; }
+    }
+    .status-msg {
+      font-size: 0.8rem;
+      color: #aaa;
+      text-align: center;
+      margin-bottom: 12px;
+      display: none;
+    }
+    button#downloadBtn {
+      width: 100%;
+      background: #FB7299;
+      border: none;
+      color: white;
+      padding: 12px 0;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 8px rgba(251, 114, 153, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    button#downloadBtn:hover {
+      background: #ff85a0;
+    }
+    button#downloadBtn:active {
+      transform: scale(0.98);
+    }
+    button#downloadBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    button.secondary {
+      width: 100%;
+      background: #3f3f5a;
+      border: none;
+      color: white;
+      padding: 10px 0;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button.secondary:hover {
+      background: #52527a;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #3a3a4c;
+      margin: 12px 0;
+    }
