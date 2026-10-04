@@ -30,7 +30,7 @@ Go 后端（本地 exe，未变）
 - [FFmpeg](https://ffmpeg.org/)（音视频合并）
 - Chrome / Edge 等 Chromium 浏览器
 
-从 Release 安装不需要 Node.js 与 Go，源码构建安装另需：
+从源码构建安装另需：
 
 - [Node.js](https://nodejs.org/) 22+（前端构建）
 - [Go](https://go.dev/dl/)（编译后端）
@@ -47,7 +47,7 @@ winget install FFmpeg
 
 ### 从 Release 安装（免编译）
 
-适合不想配置 Node.js 与 Go 环境的用户。从 [Releases](https://github.com/sglwsjxh/bilibili-video-downloader/releases) 下载 `bili-video-download-v*.zip` 解压后三步完成：
+从 [Releases](https://github.com/sglwsjxh/bilibili-video-downloader/releases/latest) 下载 `bili-video-download-v*.zip` 解压后三步完成：
 
 1. 打开 `chrome://extensions` → 开启"开发者模式" → 点击"加载已解压的扩展程序"
 2. 选择解压目录里的 `chrome-mv3` 文件夹，复制该扩展的 ID
@@ -84,7 +84,7 @@ winget install FFmpeg
    - 已注册过：检测到保存的 ID，直接回车沿用，或输入新 ID
 4. **写入配置 + 注册**（生成 `installer/config.json`，向 Chromium 与 Edge 的 `HKCU` 注册表写入 Native Messaging Host）
 
-常用参数：
+可选参数：
 
 - `--ExtensionId <id>` 直接指定扩展 ID，跳过交互提示
 - `--no-frontend` 仅编译后端
@@ -112,36 +112,36 @@ winget install FFmpeg
 
 ```
 bilibili-video-downloader/
-├── wxt.config.ts           WXT 配置 模块 权限 manifest 覆盖
-├── tsconfig.json           TypeScript 配置 extends .wxt/tsconfig.json
-├── package.json            npm 元数据 脚本 版本号唯一来源
+├── wxt.config.ts             WXT 配置 模块 权限 manifest 覆盖
+├── tsconfig.json             TypeScript 配置 extends .wxt/tsconfig.json
+├── package.json              npm 元数据 脚本 版本号唯一来源
 ├── entrypoints/
-│   ├── content.ts          内容脚本 导入 shared/dash-parser.js
-│   ├── background.ts       Service Worker 原 background.js 逻辑
+│   ├── content.ts            内容脚本 导入 shared/dash-parser.js
+│   ├── background.ts         Service Worker 原 background.js 逻辑
 │   └── popup/
-│       ├── index.html      弹窗入口 声明 action icons
-│       ├── main.ts         Vue 3 启动
-│       ├── App.vue         弹窗组件 原 popup.js/html 逻辑 样式
-│       └── style.css       弹窗样式 原内联 CSS 迁移
+│       ├── index.html        弹窗入口 声明 action icons
+│       ├── main.ts           Vue 3 启动
+│       ├── App.vue           弹窗组件 原 popup.js/html 逻辑 样式
+│       └── style.css         弹窗样式 原内联 CSS 迁移
 ├── shared/
-│   ├── dash-parser.js      纯 DASH 解析 单一源 tests content.ts 共用
-│   ├── dash-parser.d.ts    类型声明
-│   ├── flatten-payload.ts  协议消息扁平化工具
-│   └── types.ts            协议类型 镜像 Go 端 messages.go
-├── public/                 图标 icon-16/32/48/64/128.png icon.svg
+│   ├── dash-parser.js        纯 DASH 解析 单一源 tests content.ts 共用
+│   ├── dash-parser.d.ts      类型声明
+│   ├── flatten-payload.ts    协议消息扁平化工具
+│   └── types.ts              协议类型 镜像 Go 端 messages.go
+├── public/                   图标 icon-16/32/48/64/128.png icon.svg
 ├── tests/
 │   ├── dash-parser.test.js 16 cases
 │   ├── flatten-payload.test.js 6 cases
 │   └── fixtures/
-├── backend/                Go 后端
+├── backend/                  Go 后端
 │   ├── cmd/nativehost/
 │   └── internal/
 ├── installer/
 │   ├── install.ps1           源码安装 卸载 自动编译后端 生成配置 注册
 │   ├── install-release.ps1   Release 安装 免编译 只生成配置与注册
-│   └── config.json         运行时生成 不进版本库
-├── .output/                构建产物 gitignored 加载扩展选此目录
-└── .wxt/                   WXT 内部缓存 gitignored
+│   └── config.json           运行时生成 不进版本库
+├── .output/                  构建产物 gitignored 加载扩展选此目录
+└── .wxt/                     WXT 内部缓存 gitignored
 ```
 
 `installer/nativehost.exe` 由 `install.ps1` 编译生成或由 Release zip 预编译提供，不进版本库
@@ -168,7 +168,7 @@ npm run compile
 npm test
 
 # 后端编译（一般交给 install.ps1 即可，手动编译用这条）
-cd backend && go build -ldflags "-X main.version=2.0.0" -o ../installer/nativehost.exe ./cmd/nativehost/
+cd backend && go build -ldflags "-X main.version=2.0.1" -o ../installer/nativehost.exe ./cmd/nativehost/
 cd ..
 
 # 后端测试
