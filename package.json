@@ -4,24 +4,37 @@
   "description": "提取和下载 B 站音视频流",
   "author": "清木殇",
   "license": "MIT",
-  "main": "content.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "compile": "vue-tsc --noEmit",
+    "postinstall": "wxt prepare"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sglwsjxh/bilibili-video-downloader.git"
   },
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/sglwsjxh/bilibili-video-downloader/issues"
   },
   "homepage": "https://github.com/sglwsjxh/bilibili-video-downloader#readme",
+  "dependencies": {
+    "vue": "^3.5.29"
+  },
   "devDependencies": {
-    "vitest": "^4.1.7"
+    "@types/chrome": "^0.3.4",
+    "@wxt-dev/module-vue": "^1.0.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.1.5",
+    "vitest": "^4.1.7",
+    "vue-tsc": "^3.2.5",
+    "wxt": "^0.21.4"
   }
 }
