@@ -161,10 +161,10 @@ if (-not $NoRegister) {
       if ($m.Success) { $savedId = $m.Groups[1].Value }
     }
     if ($savedId) {
-      $typed = (Read-Host "📝 检测到已注册的扩展 ID: $savedId，回车沿用，或输入新 ID: ").Trim()
+      $typed = (Read-Host "📝 检测到已注册的扩展 ID: $savedId，回车沿用，或输入新 ID").Trim()
       if ($typed) { $ExtensionId = $typed } else { $ExtensionId = $savedId }
     } else {
-      $ExtensionId = (Read-Host "📝 请在 chrome://extensions 加载 .output\chrome-mv3 目录后复制扩展 ID 并粘贴: ").Trim()
+      $ExtensionId = (Read-Host "📝 请在 chrome://extensions 加载 .output\chrome-mv3 目录后复制扩展 ID 并粘贴").Trim()
       if (-not $ExtensionId) {
         Write-Error "❌ 扩展 ID 不能为空"
         exit 1
