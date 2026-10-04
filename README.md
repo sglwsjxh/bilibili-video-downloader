@@ -4,7 +4,7 @@
 
 ## 项目简介
 
-B站视频下载器是一款专为哔哩哔哩 (Bilibili) 设计的浏览器扩展 + 本地后端工具。它采用前后端分离架构：
+B站视频下载器是一款专为哔哩哔哩 (Bilibili) 设计的浏览器扩展 + 本地后端工具，采用前后端分离架构：
 
 - **Chrome 扩展**（前端）：负责解析 B 站页面的 DASH 流地址，提供下载 UI
 - **Go 后端**（本地服务）：负责 HTTP 下载视频/音频流，调用 FFmpeg 无损合并
@@ -12,14 +12,14 @@ B站视频下载器是一款专为哔哩哔哩 (Bilibili) 设计的浏览器扩�
 ## 架构
 
 ```
-Chrome 扩展（前端）
-  ├── content.js    解析 B 站页面 DASH 流
-  ├── background.js  管理 Native Messaging 连接
-  └── popup.js/html  用户界面 + 目录选择
+前端 (WXT + Vue 3 + Vite 构建)
+  ├── entrypoints/content.ts     内容脚本：解析 B 站页面 DASH 流
+  ├── entrypoints/background.ts  Service Worker：Native Messaging 桥接
+  └── entrypoints/popup/         Vue 3 SFC 弹窗 UI
         │
         │ Chrome Native Messaging
         ▼
-Go 后端（本地 exe）
+Go 后端（本地 exe，未变）
   ├── 下载器 (HTTP)   并行下载视频轨 + 音频轨
   ├── FFmpeg 合成器    无损合并为 MP4
   └── 目录选择器       原生文件夹弹窗
@@ -27,6 +27,7 @@ Go 后端（本地 exe）
 
 ## 前置要求
 
+- [Node.js](https://nodejs.org/) 22+（前端构建）
 - [Go](https://go.dev/dl/) 1.21+（编译后端）
 - [FFmpeg](https://ffmpeg.org/)（音视频合并）
 - Chrome / Edge 等 Chromium 浏览器
@@ -65,10 +66,11 @@ winget install FFmpeg
 
 ### 2. 加载扩展
 
-1. 打开 `chrome://extensions`
-2. 开启"开发者模式"
-3. 点击"加载已解压的扩展程序"
-4. 选择项目根目录
+1. 先构建前端：`npm run build`（产物在 `.output/chrome-mv3`）
+2. 打开 `chrome://extensions`
+3. 开启"开发者模式"
+4. 点击"加载已解压的扩展程序"
+5. 选择 `.output/chrome-mv3` 目录
 
 > 扩展 ID 每次重新加载都可能变化，变化后重跑一次 `install.ps1 --ExtensionId` 即可
 
@@ -84,27 +86,35 @@ winget install FFmpeg
 
 ```
 bilibili-video-downloader/
-├── content.js          注入脚本：解析 DASH 流
-├── background.js       Service Worker：Native Messaging 桥接
-├── popup.js            弹窗 UI 逻辑
-├── popup.html          弹窗界面
-├── manifest.json       MV3 配置（版本号）
-├── package.json        npm 元数据 + 测试脚本（版本号唯一来源）
+├── wxt.config.ts           WXT 配置（模块、权限、manifest 覆盖）
+├── tsconfig.json           TypeScript 配置（extends .wxt/tsconfig.json）
+├── package.json            npm 元数据 + 脚本 + 版本号唯一来源
+├── entrypoints/
+│   ├── content.ts          内容脚本（导入 shared/dash-parser.js）
+│   ├── background.ts       Service Worker（原 background.js 逻辑）
+│   └── popup/
+│       ├── index.html      弹窗入口（声明 action icons）
+│       ├── main.ts         Vue 3 启动
+│       ├── App.vue         弹窗组件（原 popup.js/html 逻辑 + 样式）
+│       └── style.css       弹窗样式（原内联 CSS 迁移）
 ├── shared/
-│   └── dash-parser.js  纯 DASH 解析模块（含 vitest 测试）
+│   ├── dash-parser.js      纯 DASH 解析（单一源，tests + content.ts 共用）
+│   ├── dash-parser.d.ts    类型声明
+│   ├── flatten-payload.ts  协议消息扁平化工具
+│   └── types.ts            协议类型（镜像 Go 端 messages.go）
+├── public/                 图标（icon-16/32/48/64/128.png + icon.svg）
 ├── tests/
-│   ├── dash-parser.test.js
+│   ├── dash-parser.test.js 16 cases
+│   ├── flatten-payload.test.js 6 cases
 │   └── fixtures/
-├── backend/
-│   ├── cmd/nativehost/  Go 后端入口
+├── backend/                Go 1.21 后端（未变）
+│   ├── cmd/nativehost/
 │   └── internal/
-│       ├── messaging/    Native Messaging 编解码
-│       ├── downloader/   HTTP 下载器
-│       ├── ffmpeg/       FFmpeg 合成
-│       └── job/          任务管理
-└── installer/
-    ├── install.ps1       安装/卸载脚本（自动编译后端 + 生成配置 + 注册）
-    └── config.json       运行时生成的本机配置，不进版本库
+├── installer/
+│   ├── install.ps1         安装/卸载（自动编译后端 + 生成配置 + 注册）
+│   └── config.json         运行时生成，不进版本库
+├── .output/                构建产物（gitignored，加载扩展选此目录）
+└── .wxt/                   WXT 内部缓存（gitignored）
 ```
 
 `installer/nativehost.exe` 由 `install.ps1` 编译生成，同样不进版本库
@@ -112,8 +122,22 @@ bilibili-video-downloader/
 ## 开发
 
 ```bash
+# 依赖安装
+npm install
+
+# 前端开发（热重载，输出到 .output/chrome-mv3-dev）
+npm run dev
+
+# 前端构建（生产产物到 .output/chrome-mv3）
+npm run build
+
+# 打包发布 zip
+npm run zip
+
+# 类型检查
+npm run compile
+
 # 前端测试
-npm install     # 首次需装依赖（vitest）
 npm test
 
 # 后端编译（一般交给 install.ps1 即可，手动编译用这条）
@@ -127,7 +151,7 @@ cd ..
 
 ### 版本号
 
-`package.json` 的 `version` 是唯一来源，`install.ps1` 读它来注入 Go 二进制版本（`-X main.version=`），发版时把它改成目标版本即可；`manifest.json` 的 `version` 需与它保持一致（Chrome 要求 1-4 位数字且每段 ≤ 65535）
+`package.json` 的 `version` 是唯一来源，`install.ps1` 读它来注入 Go 二进制版本（`-X main.version=`），WXT 构建时也会把它写入生成的 `manifest.json`，发版时只需改 `package.json` 即可（Chrome 要求 1-4 位数字且每段 ≤ 65535）
 
 ## 已知限制
 
