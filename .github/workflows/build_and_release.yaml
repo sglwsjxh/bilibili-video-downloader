@@ -58,7 +58,7 @@ jobs:
           Compress-Archive -Path $dirName -DestinationPath "$dirName.zip"
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: bili-video-download-*.zip
           generate_release_notes: true
