@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/sglwsjxh/bilibili-video-downloader#readme",
   "dependencies": {
-    "vue": "^3.5.29"
+    "vue": "^3.5.44"
   },
   "devDependencies": {
     "@types/chrome": "^0.3.4",
